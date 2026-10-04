@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Calculator Web Application</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #0f172a, #1e293b, #312e81);
+            padding: 20px;
+        }
+
+        .calculator-container {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .calculator {
+            background: #111827;
+            padding: 25px;
+            border-radius: 25px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .title {
+            text-align: center;
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 14px;
+            margin-top: -12px;
+            margin-bottom: 20px;
+        }
+
+        /* Display */
+
+        .display-container {
+            background: #020617;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            overflow: hidden;
+        }
+
+        .previous-display {
+            color: #64748b;
+            font-size: 16px;
+            min-height: 22px;
+            text-align: right;
+            word-wrap: break-word;
+        }
+
+        .current-display {
+            color: white;
+            font-size: 38px;
+            font-weight: bold;
+            text-align: right;
+            word-wrap: break-word;
+            overflow-wrap: anywhere;
+        }
+
+        /* Buttons */
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        button {
+            height: 65px;
+            border: none;
+            border-radius: 15px;
+            font-size: 21px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.15);
+        }
+
+        button:active {
+            transform: scale(0.94);
+        }
+
+        .number {
+            background: #334155;
+            color: white;
+        }
+
+        .operator {
+            background: #6366f1;
+            color: white;
+        }
+
+        .clear {
+            background: #ef4444;
+            color: white;
+        }
+
+        .delete {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .equals {
+            background: #10b981;
+            color: white;
+        }
+
+        .zero {
+            grid-column: span 2;
+        }
+
+        /* History */
+
+        .history {
+            margin-top: 25px;
+            background: #020617;
+            border-radius: 15px;
+            padding: 15px;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .history-header h3 {
+            color: white;
+            font-size: 17px;
+        }
+
+        .clear-history {
+            background: #475569;
+            color: white;
+            height: auto;
+            padding: 7px 12px;
+            font-size: 12px;
+            border-radius: 8px;
+        }
+
+        #historyList {
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 9px 5px;
+            border-bottom: 1px solid #1e293b;
+            color: #cbd5e1;
+            font-size: 14px;
+        }
+
+        .history-item .result {
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        .empty-history {
+            text-align: center;
+            color: #64748b;
+            padding: 10px;
+            font-size: 13px;
+        }
+
+        /* Keyboard information */
+
+        .keyboard-info {
+            text-align: center;
+            color: #64748b;
+            font-size: 12px;
+            margin-top: 15px;
+        }
+
+        /* Mobile */
+
+        @media (max-width: 450px) {
+
+            .calculator {
+                padding: 18px;
+            }
+
+            button {
+                height: 58px;
+                font-size: 18px;
+            }
+
+            .current-display {
+                font-size: 30px;
+            }
+
+            .title {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="calculator-container">
+
+        <div class="calculator">
+
+            <div class="title">
+                🧮 Calculator
+            </div>
+
+            <div class="subtitle">
+                Simple & Powerful Calculator
+            </div>
+
+
+            <!-- DISPLAY -->
+
+            <div class="display-container">
+
+                <div
+                    class="previous-display"
+                    id="previousDisplay">
+                </div>
+
+                <div
+                    class="current-display"
+                    id="currentDisplay">
+                    0
+                </div>
+
+            </div>
+
+
+            <!-- CALCULATOR BUTTONS -->
+
+            <div class="buttons">
+
+                <!-- Row 1 -->
+
+                <button
+                    class="clear"
+                    id="clearButton">
+                    AC
+                </button>
+
+                <button
+                    class="delete"
+                    id="deleteButton">
+                    ⌫
+                </button>
+
+                <button
+                    class="operator"
+                    data-action="percentage">
+                    %
+                </button>
+
+                <button
+                    class="operator"
+                    data-operator="/">
+                    ÷
+                </button>
+
+
+                <!-- Row 2 -->
+
+                <button
+                    class="number"
+                    data-number="7">
+                    7
+                </button>
+
+                <button
+                    class="number"
+                    data-number="8">
+                    8
+                </button>
+
+                <button
+                    class="number"
+                    data-number="9">
+                    9
+                </button>
+
+                <button
+                    class="operator"
+                    data-operator="*">
+                    ×
+                </button>
+
+
+                <!-- Row 3 -->
+
+                <button
+                    class="number"
+                    data-number="4">
+                    4
+                </button>
+
+                <button
+                    class="number"
+                    data-number="5">
+                    5
+                </button>
+
+                <button
+                    class="number"
+                    data-number="6">
+                    6
+                </button>
+
+                <button
+                    class="operator"
+                    data-operator="-">
+                    −
+                </button>
+
+
+                <!-- Row 4 -->
+
+                <button
+                    class="number"
+                    data-number="1">
+                    1
+                </button>
+
+                <button
+                    class="number"
+                    data-number="2">
+                    2
+                </button>
+
+                <button
+                    class="number"
+                    data-number="3">
+                    3
+                </button>
+
+                <button
+                    class="operator"
+                    data-operator="+">
+                    +
+                </button>
+
+
+                <!-- Row 5 -->
+
+                <button
+                    class="number zero"
+                    data-number="0">
+                    0
+                </button>
+
+                <button
+                    class="number"
+                    data-number=".">
+                    .
+                </button>
+
+                <button
+                    class="equals"
+                    id="equalsButton">
+                    =
+                </button>
+
+            </div>
+
+
+            <!-- HISTORY -->
+
+            <div class="history">
+
+                <div class="history-header">
+
+                    <h3>
+                        Calculation History
+                    </h3>
+
+                    <button
+                        class="clear-history"
+                        id="clearHistory">
+                        Clear
+                    </button>
+
+                </div>
+
+                <div id="historyList">
+
+                    <div class="empty-history">
+                        No calculations yet
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="keyboard-info">
+                You can also use your keyboard ⌨️
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+        // ==========================================
+        // DOM ELEMENTS
+        // ==========================================
+
+        const currentDisplay =
+            document.getElementById("currentDisplay");
+
+        const previousDisplay =
+            document.getElementById("previousDisplay");
+
+        const clearButton =
+            document.getElementById("clearButton");
+
+        const deleteButton =
+            document.getElementById("deleteButton");
+
+        const equalsButton =
+            document.getElementById("equalsButton");
+
+        const clearHistory =
+            document.getElementById("clearHistory");
+
+        const historyList =
+            document.getElementById("historyList");
+
+
+        // ==========================================
+        // CALCULATOR VARIABLES
+        // ==========================================
+
+        let currentValue = "0";
+
+        let previousValue = "";
+
+        let selectedOperator = null;
+
+        let waitingForOperand = false;
+
+        let expression = "";
+
+
+        // ==========================================
+        // UPDATE DISPLAY
+        // ==========================================
+
+        function updateDisplay() {
+
+            currentDisplay.textContent = currentValue;
+
+            previousDisplay.textContent = expression;
+
+        }
+
+
+        // ==========================================
+        // INPUT NUMBER
+        // ==========================================
+
+        function inputNumber(number) {
+
+            if (waitingForOperand) {
+
+                currentValue = number;
+
+                waitingForOperand = false;
+
+            } else {
+
+                if (currentValue === "0") {
+
+                    currentValue = number;
+
+                } else {
+
+                    currentValue += number;
+
+                }
+
+            }
+
+            updateDisplay();
+
+        }
+
+
+        // ==========================================
+        // INPUT DECIMAL
+        // ==========================================
+
+        function inputDecimal() {
+
+            if (waitingForOperand) {
+
+                currentValue = "0.";
+
+                waitingForOperand = false;
+
+            } else if (!currentValue.includes(".")) {
+
+                currentValue += ".";
+
+            }
+
+            updateDisplay();
+
+        }
+
+
+        // ==========================================
+        // SELECT OPERATOR
+        // ==========================================
+
+        function chooseOperator(operator) {
+
+            if (selectedOperator !== null && !waitingForOperand) {
+
+                calculate();
+
+            }
+
+            previousValue = currentValue;
+
+            selectedOperator = operator;
+
+            waitingForOperand = true;
+
+            expression =
+                `${formatNumber(previousValue)} ${getOperatorSymbol(operator)}`;
+
+            updateDisplay();
+
+        }
+
+
+        // ==========================================
+        // CALCULATE
+        // ==========================================
+
+        function calculate() {
+
+            if (
+                selectedOperator === null ||
+                previousValue === ""
+            ) {
+                return;
+            }
+
+            const firstNumber =
+                parseFloat(previousValue);
+
+            const secondNumber =
+                parseFloat(currentValue);
+
+            let result;
+
+
+            switch (selectedOperator) {
+
+                case "+":
+
+                    result =
+                        firstNumber + secondNumber;
+
+                    break;
+
+
+                case "-":
+
+                    result =
+                        firstNumber - secondNumber;
+
+                    break;
+
+
+                case "*":
+
+                    result =
+                        firstNumber * secondNumber;
+
+                    break;
+
+
+                case "/":
+
+                    if (secondNumber === 0) {
+
+                        showError("Cannot divide by zero");
+
+                        return;
+
+                    }
+
+                    result =
+                        firstNumber / secondNumber;
+
+                    break;
+
+
+                default:
+
+                    return;
+
+            }
+
+
+            result =
+                Number(result.toFixed(10));
+
+
+            const calculation =
+                `${formatNumber(firstNumber)}
+                ${getOperatorSymbol(selectedOperator)}
+                ${formatNumber(secondNumber)}`;
+
+
+            addToHistory(
+                calculation,
+                result
+            );
+
+
+            currentValue =
+                result.toString();
+
+            previousValue = "";
+
+            selectedOperator = null;
+
+            waitingForOperand = true;
+
+            expression =
+                `${calculation} =`;
+
+            updateDisplay();
+
+        }
+
+
+        // ==========================================
+        // PERCENTAGE
+        // ==========================================
+
+        function percentage() {
+
+            const number =
+                parseFloat(currentValue);
+
+            if (isNaN(number)) {
+
+                return;
+
+            }
+
+            currentValue =
+                (number / 100).toString();
+
+            updateDisplay();
+
+        }
+
+
+        // ==========================================
+        // DELETE LAST CHARACTER
+        // ==========================================
+
+        function deleteLast() {
+
+            if (waitingForOperand) {
+
+                return;
+
+            }
+
+            if (currentValue.length === 1) {
+
+                currentValue = "0";
+
+            } else {
+
+                currentValue =
+                    currentValue.slice(0, -1);
+
+            }
+
+            updateDisplay();
+
+        }
+
+
+        // ==========================================
+        // CLEAR CALCULATOR
+        // ==========================================
+
+        function clearCalculator() {
+
+            currentValue = "0";
+
+            previousValue = "";
+
+            selectedOperator = null;
+
+            waitingForOperand = false;
+
+            expression = "";
+
+            updateDisplay();
+
+        }
+
+
+        // ==========================================
+        // ERROR HANDLING
+        // ==========================================
+
+        function showError(message) {
+
+            currentValue = "Error";
+
+            previousValue = "";
+
+            selectedOperator = null;
+
+            waitingForOperand = true;
+
+            expression = message;
+
+            updateDisplay();
+
+        }
+
+
+        // ==========================================
+        // GET OPERATOR SYMBOL
+        // ==========================================
+
+        function getOperatorSymbol(operator) {
+
+            const symbols = {
+
+                "+": "+",
+
+                "-": "−",
+
+                "*": "×",
+
+                "/": "÷"
+
+            };
+
+            return symbols[operator] || operator;
+
+        }
+
+
+        // ==========================================
+        // FORMAT NUMBER
+        // ==========================================
+
+        function formatNumber(number) {
+
+            return Number(number).toLocaleString(
+                "en-US",
+                {
+                    maximumFractionDigits: 10
+                }
+            );
+
+        }
+
+
+        // ==========================================
+        // ADD CALCULATION TO HISTORY
+        // ==========================================
+
+        function addToHistory(
+            calculation,
+            result
+        ) {
+
+            const empty =
+                document.querySelector(".empty-history");
+
+            if (empty) {
+
+                empty.remove();
+
+            }
+
+
+            const historyItem =
+                document.createElement("div");
+
+            historyItem.className =
+                "history-item";
+
+
+            const calculationText =
+                document.createElement("span");
+
+            calculationText.textContent =
+                calculation;
+
+
+            const resultText =
+                document.createElement("span");
+
+            resultText.className =
+                "result";
+
+            resultText.textContent =
+                result;
+
+
+            historyItem.appendChild(
+                calculationText
+            );
+
+            historyItem.appendChild(
+                resultText
+            );
+
+
+            historyList.prepend(
+                historyItem
+            );
+
+        }
+
+
+        // ==========================================
+        // CLEAR HISTORY
+        // ==========================================
+
+        function clearCalculationHistory() {
+
+            historyList.innerHTML = `
+
+                <div class="empty-history">
+                    No calculations yet
+                </div>
+
+            `;
+
+        }
+
+
+        // ==========================================
+        // NUMBER BUTTON EVENTS
+        // ==========================================
+
+        document
+            .querySelectorAll("[data-number]")
+            .forEach(button => {
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        const number =
+                            button.dataset.number;
+
+
+                        if (number === ".") {
+
+                            inputDecimal();
+
+                        } else {
+
+                            inputNumber(number);
+
+                        }
+
+                    }
+                );
+
+            });
+
+
+        // ==========================================
+        // OPERATOR BUTTON EVENTS
+        // ==========================================
+
+        document
+            .querySelectorAll("[data-operator]")
+            .forEach(button => {
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        chooseOperator(
+                            button.dataset.operator
+                        );
+
+                    }
+                );
+
+            });
+
+
+        // ==========================================
+        // CLEAR BUTTON
+        // ==========================================
+
+        clearButton.addEventListener(
+            "click",
+            clearCalculator
+        );
+
+
+        // ==========================================
+        // DELETE BUTTON
+        // ==========================================
+
+        deleteButton.addEventListener(
+            "click",
+            deleteLast
+        );
+
+
+        // ==========================================
+        // EQUAL BUTTON
+        // ==========================================
+
+        equalsButton.addEventListener(
+            "click",
+            calculate
+        );
+
+
+        // ==========================================
+        // PERCENTAGE BUTTON
+        // ==========================================
+
+        document
+            .querySelector(
+                '[data-action="percentage"]'
+            )
+            .addEventListener(
+                "click",
+                percentage
+            );
+
+
+        // ==========================================
+        // CLEAR HISTORY BUTTON
+        // ==========================================
+
+        clearHistory.addEventListener(
+            "click",
+            clearCalculationHistory
+        );
+
+
+        // ==========================================
+        // KEYBOARD SUPPORT
+        // ==========================================
+
+        document.addEventListener(
+            "keydown",
+            function(event) {
+
+                const key = event.key;
+
+
+                // Numbers
+
+                if (
+                    key >= "0" &&
+                    key <= "9"
+                ) {
+
+                    inputNumber(key);
+
+                }
+
+
+                // Decimal
+
+                else if (key === ".") {
+
+                    inputDecimal();
+
+                }
+
+
+                // Operators
+
+                else if (
+                    key === "+" ||
+                    key === "-" ||
+                    key === "*" ||
+                    key === "/"
+                ) {
+
+                    chooseOperator(key);
+
+                }
+
+
+                // Enter or =
+
+                else if (
+                    key === "Enter" ||
+                    key === "="
+                ) {
+
+                    event.preventDefault();
+
+                    calculate();
+
+                }
+
+
+                // Backspace
+
+                else if (key === "Backspace") {
+
+                    deleteLast();
+
+                }
+
+
+                // Escape
+
+                else if (key === "Escape") {
+
+                    clearCalculator();
+
+                }
+
+
+                // Percentage
+
+                else if (key === "%") {
+
+                    percentage();
+
+                }
+
+            }
+        );
+
+
+        // ==========================================
+        // INITIAL DISPLAY
+        // ==========================================
+
+        updateDisplay();
+
+    </script>
+
+</body>
+
+</html>
